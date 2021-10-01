@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -26,13 +24,15 @@ public class User {
     private String email;
 
     @NotBlank(message = "You must provide an password ")
-
     private String password;
+
+    private String role = "USER";
+
     private String imageUrl;
 
-    private OffsetDateTime createdAt = OffsetDateTime.of(LocalDateTime.now(), ZoneOffset.of("-02:00"));
+    private Instant createdAt = Instant.now();
 
-    private Boolean enabled = false;
+    private boolean enabled = false;
 
     @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

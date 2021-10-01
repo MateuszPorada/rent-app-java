@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "security.sigkey",
+      "type": "java.lang.String",
+      "description": "Description for security.sigkey."
+    },
+    {
+      "name": "security.token.expiration",
+      "type": "java.lang.String",
+      "description": "Description for security.token.expiration."
+    }
+  ]
+}
