@@ -83,9 +83,8 @@ public class AuthService {
             if (authenticationException.getMessage().equals("Bad credentials")) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Wrong password");
             } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, authenticationException.getMessage());
             }
-
         }
 
         SecurityContextHolder.getContext().setAuthentication(authenticate);
