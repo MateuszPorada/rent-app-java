@@ -1,12 +1,9 @@
 package com.example.rentappjava.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 @Data
 @Entity

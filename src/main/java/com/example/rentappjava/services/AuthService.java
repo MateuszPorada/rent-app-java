@@ -4,19 +4,21 @@ import com.example.rentappjava.dtos.LoginRequest;
 import com.example.rentappjava.dtos.LoginResponse;
 import com.example.rentappjava.dtos.RefreshTokenRequest;
 import com.example.rentappjava.dtos.RegisterRequestDTO;
-import com.example.rentappjava.exceptions.RentAppException;
 import com.example.rentappjava.models.User;
 import com.example.rentappjava.models.UserVerifyToken;
 import com.example.rentappjava.repos.UserRepo;
 import com.example.rentappjava.repos.UserVerifyTokenRepo;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
@@ -44,11 +46,10 @@ public class AuthService {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepo.save(user);
             String token = generateVerifcationToken(user);
-            System.out.println(token);
             emailService.sendEmail(user.getEmail(), "Registration in rent app",
                     "Thank you for signing up in rent app, please verify your email: http://localhost:6060/auth/verify/" + token);
         } else
-            throw new RentAppException("User with this email already exist");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exist");
     }
 
     private String generateVerifcationToken(User user) {
@@ -61,25 +62,35 @@ public class AuthService {
     }
 
     public void verify(String token) {
-        UserVerifyToken userVerifyToken = userVerifyTokenRepo.findUserVerifyTokenByToken(token).orElseThrow(() -> new RentAppException("Token doesn't exist"));
-        User user = userRepo.findById(userVerifyToken.getUser().getUser_id()).orElseThrow(() -> new RentAppException("User doesn't exist"));
+        UserVerifyToken userVerifyToken = userVerifyTokenRepo.findUserVerifyTokenByToken(token).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token doesn't exist"));
+        User user = userRepo.findById(userVerifyToken.getUser().getUser_id()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User doesn't exist"));
         if (userVerifyToken.getValidUntil().isAfter(Instant.now())) {
             user.setEnabled(true);
             userRepo.save(user);
         } else {
             userVerifyTokenRepo.delete(userVerifyToken);
             userRepo.delete(user);
-            throw new RentAppException("Token expired");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token has expired, please create new account with this email");
         }
     }
 
     public LoginResponse login(LoginRequest loginRequest) {
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                loginRequest.getPassword()));
+        Authentication authenticate;
+        try {
+            authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                    loginRequest.getPassword()));
+        } catch (AuthenticationException authenticationException) {
+            if (authenticationException.getMessage().equals("Bad credentials")) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Wrong password");
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
+
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authenticate);
-        String token = jwtProvider.generateToken(authenticate);
         return LoginResponse.builder()
-                .authToken(token)
+                .authToken(jwtProvider.generateToken(authenticate))
                 .refreshToken(refreshTokenService.generateRefreshToken().getToken())
                 .expiresAt(Instant.now().plusSeconds(jwtProvider.getTokenExpirationTime()))
                 .username(loginRequest.getEmail())
@@ -87,18 +98,22 @@ public class AuthService {
     }
 
     public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
-        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
-        Optional<User> optionalUser = userRepo.findByEmail(refreshTokenRequest.getEmail());
-        if (optionalUser.isPresent()) {
-            String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getEmail(), optionalUser.get().getRole());
-            return LoginResponse.builder()
-                    .authToken(token)
-                    .refreshToken(refreshTokenRequest.getRefreshToken())
-                    .expiresAt(Instant.now().plusSeconds(jwtProvider.getTokenExpirationTime()))
-                    .username(refreshTokenRequest.getEmail())
-                    .build();
+        if (refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken())) {
+            Optional<User> optionalUser = userRepo.findByEmail(refreshTokenRequest.getEmail());
+            if (optionalUser.isPresent()) {
+                String token = jwtProvider.generateTokenWithUserName(refreshTokenRequest.getEmail(), optionalUser.get().getRole());
+                return LoginResponse.builder()
+                        .authToken(token)
+                        .refreshToken(refreshTokenRequest.getRefreshToken())
+                        .expiresAt(Instant.now().plusSeconds(jwtProvider.getTokenExpirationTime()))
+                        .username(refreshTokenRequest.getEmail())
+                        .build();
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            }
         } else {
-            throw new RentAppException("User not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid token");
         }
+
     }
 }

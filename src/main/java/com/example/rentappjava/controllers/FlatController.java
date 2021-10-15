@@ -6,7 +6,6 @@ import com.example.rentappjava.services.FlatService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +17,6 @@ public class FlatController {
 
     @PostMapping
     public ResponseEntity<Flat> createFlat(@RequestBody FlatDTO flatDTO) {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         return new ResponseEntity<>(flatService.save(flatDTO), HttpStatus.CREATED);
     }
 

@@ -24,6 +24,6 @@ public class FlatService {
     }
 
     public Flat getFlat(Long id) {
-        return flatRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return flatRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flat not found"));
     }
 }

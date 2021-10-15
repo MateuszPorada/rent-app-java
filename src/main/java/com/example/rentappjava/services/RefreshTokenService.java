@@ -1,6 +1,5 @@
 package com.example.rentappjava.services;
 
-import com.example.rentappjava.exceptions.RentAppException;
 import com.example.rentappjava.models.RefreshToken;
 import com.example.rentappjava.repos.RefreshTokenRepo;
 import lombok.AllArgsConstructor;
@@ -8,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,9 +24,9 @@ public class RefreshTokenService {
         return refreshTokenRepo.save(refreshToken);
     }
 
-    void validateRefreshToken(String token) {
-        refreshTokenRepo.findByToken(token)
-                .orElseThrow(() -> new RentAppException("Invalid refresh Token"));
+    boolean validateRefreshToken(String token) {
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepo.findByToken(token);
+        return optionalRefreshToken.isPresent();
     }
 
     public void deleteRefreshToken(String token) {
