@@ -1,7 +1,7 @@
 package com.example.rentappjava.services;
 
-import com.example.rentappjava.dtos.ImageResponseModelDTO;
-import com.example.rentappjava.models.ImageModel;
+import com.example.rentappjava.dtos.ImageResponse;
+import com.example.rentappjava.entities.ImageModel;
 import com.example.rentappjava.repos.ImageRepo;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -50,8 +50,6 @@ public class ImageService {
         imageModel.setData(image.getBytes());
         imageModel.setWidth(originalImage.getWidth());
         imageModel.setHeight(originalImage.getHeight());
-        System.out.println(originalImage.getType());
-        System.out.println(originalImage.getTransparency());
         imageModel.setSize(image.getSize());
         imageRepo.save(imageModel);
         return ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -74,18 +72,18 @@ public class ImageService {
         return imageRepo.findAll();
     }
 
-    public List<ImageResponseModelDTO> getList() {
+    public List<ImageResponse> getList() {
         List<ImageModel> imageModels = imageRepo.findAll();
-        List<ImageResponseModelDTO> imageResponseModelDTOS = new ArrayList<>();
+        List<ImageResponse> imageResponses = new ArrayList<>();
         for (ImageModel imageModel : imageModels) {
-            ImageResponseModelDTO imageResponseModelDTO = modelMapper.map(imageModel, ImageResponseModelDTO.class);
+            ImageResponse imageResponse = modelMapper.map(imageModel, ImageResponse.class);
             String url = ServletUriComponentsBuilder.fromCurrentContextPath()
                     .path("/image/")
                     .path(imageModel.getId())
                     .toUriString();
-            imageResponseModelDTO.setImageUrl(url);
-            imageResponseModelDTOS.add(imageResponseModelDTO);
+            imageResponse.setImageUrl(url);
+            imageResponses.add(imageResponse);
         }
-        return imageResponseModelDTOS;
+        return imageResponses;
     }
 }

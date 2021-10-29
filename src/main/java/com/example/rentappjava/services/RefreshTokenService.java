@@ -1,6 +1,6 @@
 package com.example.rentappjava.services;
 
-import com.example.rentappjava.models.RefreshToken;
+import com.example.rentappjava.entities.RefreshToken;
 import com.example.rentappjava.repos.RefreshTokenRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

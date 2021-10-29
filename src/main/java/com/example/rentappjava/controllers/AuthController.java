@@ -3,7 +3,7 @@ package com.example.rentappjava.controllers;
 import com.example.rentappjava.dtos.LoginRequest;
 import com.example.rentappjava.dtos.LoginResponse;
 import com.example.rentappjava.dtos.RefreshTokenRequest;
-import com.example.rentappjava.dtos.RegisterRequestDTO;
+import com.example.rentappjava.dtos.RegisterRequest;
 import com.example.rentappjava.services.AuthService;
 import com.example.rentappjava.services.RefreshTokenService;
 import lombok.AllArgsConstructor;
@@ -21,8 +21,8 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUser(@RequestBody RegisterRequestDTO registerRequestDTO) {
-        authService.signUser(registerRequestDTO);
+    public ResponseEntity<Void> signUser(@RequestBody RegisterRequest registerRequest) {
+        authService.signUser(registerRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

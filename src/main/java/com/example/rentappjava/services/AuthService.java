@@ -3,9 +3,9 @@ package com.example.rentappjava.services;
 import com.example.rentappjava.dtos.LoginRequest;
 import com.example.rentappjava.dtos.LoginResponse;
 import com.example.rentappjava.dtos.RefreshTokenRequest;
-import com.example.rentappjava.dtos.RegisterRequestDTO;
-import com.example.rentappjava.models.User;
-import com.example.rentappjava.models.UserVerifyToken;
+import com.example.rentappjava.dtos.RegisterRequest;
+import com.example.rentappjava.entities.User;
+import com.example.rentappjava.entities.UserVerifyToken;
 import com.example.rentappjava.repos.UserRepo;
 import com.example.rentappjava.repos.UserVerifyTokenRepo;
 import lombok.AllArgsConstructor;
@@ -39,9 +39,9 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public void signUser(RegisterRequestDTO registerRequestDTO) {
-        Optional<User> optionalUser = userRepo.findByEmail(registerRequestDTO.getEmail());
-        User user = modelMapper.map(registerRequestDTO, User.class);
+    public void signUser(RegisterRequest registerRequest) {
+        Optional<User> optionalUser = userRepo.findByEmail(registerRequest.getEmail());
+        User user = modelMapper.map(registerRequest, User.class);
         if (optionalUser.isEmpty()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepo.save(user);
@@ -114,5 +114,10 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid token");
         }
 
+    }
+
+    @Transactional
+    public User getCurrentUser() {
+        return userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 }

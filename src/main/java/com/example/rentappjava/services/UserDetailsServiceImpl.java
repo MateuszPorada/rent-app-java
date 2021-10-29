@@ -1,7 +1,7 @@
 package com.example.rentappjava.services;
 
 
-import com.example.rentappjava.models.User;
+import com.example.rentappjava.entities.User;
 import com.example.rentappjava.repos.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

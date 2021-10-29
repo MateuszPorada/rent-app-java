@@ -1,6 +1,6 @@
 package com.example.rentappjava.controllers;
 
-import com.example.rentappjava.models.ImageModel;
+import com.example.rentappjava.entities.ImageModel;
 import com.example.rentappjava.services.ImageService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

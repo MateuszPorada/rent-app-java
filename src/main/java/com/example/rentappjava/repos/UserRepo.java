@@ -1,6 +1,6 @@
 package com.example.rentappjava.repos;
 
-import com.example.rentappjava.models.User;
+import com.example.rentappjava.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
