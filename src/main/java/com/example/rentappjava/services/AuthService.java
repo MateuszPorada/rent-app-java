@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
@@ -46,10 +47,21 @@ public class AuthService {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepo.save(user);
             String token = generateVerifcationToken(user);
-            emailService.sendEmail(user.getEmail(), "Registration in rent app",
-                    "Thank you for signing up in rent app, please verify your email: http://localhost:6060/auth/verify/" + token);
+            String path = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            emailService.sendRegistrationEmail(path, user, token);
         } else
             throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this email already exist");
+    }
+
+    public void resendEmail(String email) {
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        if (!user.isEnabled()) {
+            String token = userVerifyTokenRepo.findUserVerifyTokenByUser(user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token not found")).getToken();
+            String path = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+            emailService.sendRegistrationEmail(path, user, token);
+        } else {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already activated");
+        }
     }
 
     private String generateVerifcationToken(User user) {
@@ -63,7 +75,7 @@ public class AuthService {
 
     public void verify(String token) {
         UserVerifyToken userVerifyToken = userVerifyTokenRepo.findUserVerifyTokenByToken(token).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token doesn't exist"));
-        User user = userRepo.findById(userVerifyToken.getUser().getUser_id()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User doesn't exist"));
+        User user = userRepo.findById(userVerifyToken.getUser().getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User doesn't exist"));
         if (userVerifyToken.getValidUntil().isAfter(Instant.now())) {
             user.setEnabled(true);
             userRepo.save(user);
@@ -120,4 +132,6 @@ public class AuthService {
     public User getCurrentUser() {
         return userRepo.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
+
+
 }

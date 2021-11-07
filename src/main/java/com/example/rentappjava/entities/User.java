@@ -1,6 +1,5 @@
 package com.example.rentappjava.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -22,9 +21,11 @@ import java.util.Objects;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id;
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
 
     @NotBlank(message = "You must provide an email ")
+    @Column(unique = true)
     private String email;
 
     @NotBlank(message = "You must provide an password ")
@@ -38,26 +39,20 @@ public class User {
 
     private boolean enabled = false;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Flat> ownedFlats;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Room> rentedRooms;
+    private List<RentAction> rentAction;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
-        return user_id != null && Objects.equals(user_id, user.user_id);
+        return userId != null && Objects.equals(userId, user.userId);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return getClass().hashCode();
     }
 }

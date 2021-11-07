@@ -22,6 +22,7 @@ public class UserVerifyToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String token;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     private User user;

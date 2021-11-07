@@ -1,5 +1,6 @@
 package com.example.rentappjava.entities;
 
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -7,7 +8,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.util.List;
+import java.time.Instant;
 import java.util.Objects;
 
 @Getter
@@ -15,37 +16,37 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "rooms")
-public class Room {
+@Table(name = "rent_action")
+public class RentAction {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
+    @Column(name = "rent_action_id")
     private Long id;
 
-    private Double price;
+    private double price;
 
-    @ElementCollection
-    private List<String> imgUrls;
+    private Instant startDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "flat_id")
+    @JoinColumn(name = "living_space_id")
     @ToString.Exclude
-    private Flat flat;
+    private RentedSpace rentedSpace;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    private User tenant;
+    private User user;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Room room = (Room) o;
-        return id != null && Objects.equals(id, room.id);
+        RentAction that = (RentAction) o;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return getClass().hashCode();
     }
 }

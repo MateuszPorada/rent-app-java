@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 @RestController
 @AllArgsConstructor
@@ -23,6 +24,12 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<Void> signUser(@RequestBody RegisterRequest registerRequest) {
         authService.signUser(registerRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/resend")
+    public ResponseEntity<Void> resendEmail(@Email @RequestParam String email) {
+        authService.resendEmail(email);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

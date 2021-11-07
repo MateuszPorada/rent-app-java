@@ -10,25 +10,29 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Entity
-@Table(name = "flats")
-public class Flat {
+@Table(name = "living_spaces")
+public class RentedSpace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "living_space_id")
     private Long id;
 
     private String address;
 
+    @Enumerated(EnumType.STRING)
+    private spaceType spaceType;
+
     @ElementCollection
     private List<String> imgUrls;
 
-    @OneToMany(mappedBy = "flat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "rentedSpace", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Room> rooms;
+    private List<RentAction> rentAction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -39,12 +43,16 @@ public class Flat {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Flat flat = (Flat) o;
-        return id != null && Objects.equals(id, flat.id);
+        RentedSpace that = (RentedSpace) o;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return getClass().hashCode();
+    }
+
+    public enum spaceType {
+        Flat, Room
     }
 }

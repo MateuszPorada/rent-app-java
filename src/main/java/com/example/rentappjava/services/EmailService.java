@@ -1,5 +1,6 @@
 package com.example.rentappjava.services;
 
+import com.example.rentappjava.entities.User;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,5 +24,11 @@ class EmailService {
             messageHelper.setText(body);
         };
         mailSender.send(messagePreparator);
+    }
+
+    @Async
+    void sendRegistrationEmail(String path, User user, String token) {
+        sendEmail(user.getEmail(), "Registration in rent app",
+                "Thank you for signing up in rent app, please verify your email: " + path + "/auth/verify/" + token);
     }
 }
