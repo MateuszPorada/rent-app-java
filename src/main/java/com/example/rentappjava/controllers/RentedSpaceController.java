@@ -18,7 +18,7 @@ public class RentedSpaceController {
 
     @PostMapping
     public ResponseEntity<RentedSpaceDTO> createRentedSpace(@RequestBody RentedSpaceDTO rentedSpaceDTO) {
-        return new ResponseEntity<>(rentedSpaceService.save(rentedSpaceDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(rentedSpaceService.createRentedSpace(rentedSpaceDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -33,7 +33,7 @@ public class RentedSpaceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<RentedSpaceDTO> updateRentedSpace(@RequestBody RentedSpaceDTO rentedSpaceDTO, @PathVariable Long id) {
-        return new ResponseEntity<>(rentedSpaceService.update(rentedSpaceDTO, id), HttpStatus.CREATED);
+        return new ResponseEntity<>(rentedSpaceService.update(rentedSpaceDTO, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -41,8 +41,5 @@ public class RentedSpaceController {
         rentedSpaceService.deleteRentedSpace(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
-
 }
 

@@ -7,54 +7,45 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.time.Instant;
 import java.util.Objects;
 
-@Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(name = "living_spaces")
-public class RentedSpace {
+@Entity
+@Table
+public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "living_space_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String address;
+    private float amount;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private spaceType spaceType;
+    private Instant timestamp;
 
-    @ElementCollection
-    private List<String> imgUrls;
-
-    @OneToMany(mappedBy = "rentedSpace", cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rent_action_id")
     @ToString.Exclude
-    private List<RentAction> rentAction;
+    private RentAction rentAction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    private User owner;
+    private User tenant;
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        RentedSpace that = (RentedSpace) o;
-        return id != null && Objects.equals(id, that.id);
+        Payment payment = (Payment) o;
+        return id != null && Objects.equals(id, payment.id);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
-    }
-
-    public enum spaceType {
-        Flat, Room
     }
 }

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-@Transactional
 public class RentedSpaceService {
 
     private final RentedSpaceRepo rentedSpaceRepo;
@@ -24,7 +23,7 @@ public class RentedSpaceService {
     private final ModelMapper modelMapper;
     private final AuthService authService;
 
-    public RentedSpaceDTO save(RentedSpaceDTO rentedSpaceDTO) {
+    public RentedSpaceDTO createRentedSpace(RentedSpaceDTO rentedSpaceDTO) {
         RentedSpace rentedSpace = modelMapper.map(rentedSpaceDTO, RentedSpace.class);
         rentedSpace.setOwner(authService.getCurrentUser());
         return modelMapper.map(rentedSpaceRepo.save(rentedSpace), RentedSpaceDTO.class);
@@ -34,11 +33,13 @@ public class RentedSpaceService {
         return modelMapper.map(rentedSpaceRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Space not found")), RentedSpaceDTO.class);
     }
 
+
     public List<RentedSpaceDTO> getRentedSpacesByOwnerID(Long id) {
         List<RentedSpace> rentedSpaceList = rentedSpaceRepo.findRentedSpaceByOwner(userRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Owner not found")));
         return rentedSpaceList.stream().map(rentedSpace -> modelMapper.map(rentedSpace, RentedSpaceDTO.class)).collect(Collectors.toList());
     }
 
+    @Transactional
     public RentedSpaceDTO update(RentedSpaceDTO rentedSpaceDTO, Long id) {
         if (rentedSpaceDTO.getId().equals(id)) {
             if (!rentedSpaceRepo.existsById(id)) {
@@ -52,6 +53,7 @@ public class RentedSpaceService {
         }
     }
 
+    @Transactional
     public void deleteRentedSpace(Long id) {
         rentedSpaceRepo.delete(rentedSpaceRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Space not found")));
     }

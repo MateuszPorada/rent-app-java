@@ -39,9 +39,17 @@ public class User {
 
     private boolean enabled = false;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<RentAction> rentAction;
+    private List<RentAction> rentActions;
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Payment> payments;
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Report> reports;
 
     @Override
     public boolean equals(Object o) {

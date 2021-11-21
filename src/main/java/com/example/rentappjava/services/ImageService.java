@@ -28,10 +28,6 @@ public class ImageService {
     private final ImageRepo imageRepo;
     private final ModelMapper modelMapper;
 
-    public String save(MultipartFile image) throws IOException {
-        return MapImageModel(image);
-    }
-
     public List<String> save(MultipartFile[] images) throws IOException {
         List<String> stringList = new ArrayList<>();
         for (MultipartFile image : images) {
@@ -58,7 +54,6 @@ public class ImageService {
                 .toUriString();
     }
 
-
     public ImageModel getImage(String id) {
         return imageRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found"));
     }
@@ -66,10 +61,6 @@ public class ImageService {
     public void deleteImage(String id) {
         ImageModel imageModel = imageRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Image not found"));
         imageRepo.delete(imageModel);
-    }
-
-    public List<ImageModel> getAllFiles() {
-        return imageRepo.findAll();
     }
 
     public List<ImageResponse> getList() {

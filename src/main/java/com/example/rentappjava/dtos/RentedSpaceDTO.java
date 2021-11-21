@@ -6,4 +6,5 @@ import lombok.Data;
 public class RentedSpaceDTO {
     private Long id;
     private String address;
+    private String type;
 }

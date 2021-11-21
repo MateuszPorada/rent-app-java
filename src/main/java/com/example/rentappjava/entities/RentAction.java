@@ -1,6 +1,7 @@
 package com.example.rentappjava.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -8,7 +9,8 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -25,7 +27,11 @@ public class RentAction {
 
     private double price;
 
-    private Instant startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "living_space_id")
@@ -35,7 +41,15 @@ public class RentAction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    private User user;
+    private User tenant;
+
+    @OneToMany(mappedBy = "rentAction", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Payment> paymentList;
+
+    @OneToMany(mappedBy = "rentAction", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private List<Report> reports;
 
     @Override
     public boolean equals(Object o) {

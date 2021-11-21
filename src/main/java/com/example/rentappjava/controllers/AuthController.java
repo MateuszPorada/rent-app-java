@@ -54,5 +54,4 @@ public class AuthController {
         refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());
         return ResponseEntity.ok().body("Token deleted succesfully");
     }
-
 }
